@@ -19,7 +19,8 @@ __pycache__/
 predict
 logs
 digit_model_tf2.h5
-
+report.pdf
+unpacker.py
 # .* files
 .vscode
 .ipynb_checkpoints

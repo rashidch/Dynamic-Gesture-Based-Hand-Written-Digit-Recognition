@@ -21,10 +21,16 @@ data.py
 data-copy.py
 digit.py
 draw.py
+sample.py
+predict.pyc
 
 #ignore folders
 tensorflow_makefile
 relevent papers
+digit_sherman.zip
+digit_sherman.py
+
+
 
 # .* files
 .vscode
