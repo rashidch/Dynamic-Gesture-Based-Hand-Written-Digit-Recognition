@@ -1,0 +1,25 @@
+irst, use the following code to generate the graph.pb file. with tf.Session() as sess:
+
+    # Restore the graph
+    _ = tf.train.import_meta_graph(args.input)
+
+    # save graph file
+    g = sess.graph
+    gdef = g.as_graph_def()
+    tf.train.write_graph(gdef, ".", args.output, True)
+then, use summarize graph get the output node name. Finally, use
+
+python freeze_graph.py --input_graph=/path/to/graph.pbtxt --input_checkpoint=/path/to/model.ckpt-22480 --input_binary=false --output_graph=/path/to/frozen_graph.pb --output_node_names="the nodes that you want to output e.g. InceptionV3/Predictions/Reshape_1 for Inception V3 "
+to generate the freeze graph.
+
+
+As it may be helpful for others, I also answer here after the answer on github ;-). I think you can try something like this (with the freeze_graph script in tensorflow/python/tools) :
+
+python freeze_graph.py --input_graph=/path/to/graph.pbtxt --input_checkpoint=/path/to/model.ckpt-22480 --input_binary=false --output_graph=/path/to/frozen_graph.pb --output_node_names="the nodes that you want to output e.g. InceptionV3/Predictions/Reshape_1 for Inception V3 "
+The important flag here is --input_binary=false as the file graph.pbtxt is in text format. I think it corresponds to the required graph.pb which is the equivalent in binary format.
+
+Concerning the output_node_names, that's really confusing for me as I still have some problems on this part but you can use the summarize_graph script in tensorflow which can take the pb or the pbtxt as an input.
+
+Regards,
+
+Steph

@@ -1,0 +1,31 @@
+# ignore data files
+zipdata.rar
+zipdata1.rar
+zipdata
+zipdata1
+zipdata3
+zipdata4
+data
+
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+
+
+# C extensions
+*.so
+#data files in numpy format
+.npy
+#redundent gesture draw code
+data.py
+data-copy.py
+digit.py
+draw.py
+
+#ignore folders
+tensorflow_makefile
+relevent papers
+
+# .* files
+.vscode
+.ipynb_checkpoints
