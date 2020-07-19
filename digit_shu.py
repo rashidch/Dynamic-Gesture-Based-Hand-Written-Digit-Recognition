@@ -153,10 +153,7 @@ class SampleListener(Leap.Listener):
                             #Y=index_finger.bone(3).prev_joint[1]
                             hand_x=hand.palm_position[0]
                             hand_y=hand.palm_position[1]
-                            try:
-                                thread.start_new_thread(draw_canvas,(hand_x+150,350-hand_y))
-                            except:
-                                continue
+                            draw_canvas(hand_x+150,350-hand_y)
                             #print "draw start"
                             #print "    %s finger, id: %d, length: %fmm, width: %fmm" % (
                             #self.finger_names[fingerset[1].type],
