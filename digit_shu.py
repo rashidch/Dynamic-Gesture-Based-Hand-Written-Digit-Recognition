@@ -157,6 +157,8 @@ class SampleListener(Leap.Listener):
                             #Y=index_finger.bone(3).prev_joint[1]
                             hand_x=hand.palm_position[0]
                             hand_y=hand.palm_position[1]
+                            #hand_z=hand.palm_position[2]
+                            #draw_canvas(hand_x+150,200+hand_z)
                             draw_canvas(hand_x+150,350-hand_y)
                             #print "draw start"
                             #print "    %s finger, id: %d, length: %fmm, width: %fmm" % (
