@@ -11,8 +11,9 @@ import math
 import Tkinter
 import tkMessageBox
 import PIL.ImageDraw
+import time
 from Tkinter import *
-#from predict import process_image, predict_single_image
+from predict import process_image, predict_single_image
 from predict_multi_digit_shu import predict_multi_image
 standard_pos=[0,0]
 Filename=0
@@ -60,12 +61,15 @@ def prediction():
     #image.show()
 def prediction_multi():
     image2 = image.copy()
+    tStart = time.time()
     prediction=predict_multi_image(image2)
+    tEnd = time.time()
     i,j=prediction[0][0],prediction[0][1]
     i=int(i)
     j=int(j)
     pred=i if j==10 else i*10+j
-    l = Tkinter.Label(root, text='predict result:\n'+str(pred), font=('Arial', 13), width=15, height=5)
+    pred='B'+str(j) if i==0 else pred
+    l = Tkinter.Label(root, text='predict result:\n'+str(pred)+'\nTime:'+'%.3f'%(tEnd-tStart), font=('Arial', 13), width=15, height=5)
     l.place(x=10,y=-20)
 def save():
     print "77\n\n\n77\n7777\n77777\n7777"
@@ -148,7 +152,7 @@ class SampleListener(Leap.Listener):
                         #print 'Touch distance between Thumb and Index:',touch_distance
                         ##################################
                         
-                        if(touch_distance<((thumb.width+index_finger.width)/2+15)):
+                        if(touch_distance<((thumb.width+index_finger.width)/2+25)):
                             #X=index_finger.bone(3).prev_joint[0]
                             #Y=index_finger.bone(3).prev_joint[1]
                             hand_x=hand.palm_position[0]
