@@ -1,6 +1,7 @@
 '''
 Author : Rashid Ali and sherman
 '''
+from predict_multi_digit_shu import predict_multi_image
 import sys
 import time
 import math
@@ -13,9 +14,27 @@ import sys
 import thread
 import time
 import math
+import logging
+
+'''''
+--------------------set logging configurations--------------------
+'''''
+logger = logging.getLogger(__name__)
+
+logger.setLevel(level=logging.INFO)
+
+formatter = logging.Formatter('%(levelname)s:%(message)s')
+file_Handler = logging.FileHandler(filename='trajectory.log')
+file_Handler.setFormatter(formatter)
+
+logger.addHandler(file_Handler)
+
+'''
+-------------------------------------------------------------------
+'''
+
 
 # from predict import process_image, predict_single_image
-from predict_multi_digit_shu import predict_multi_image
 # standard_pos = [0, 0]
 Filename = 0
 root = Tk()
@@ -55,13 +74,16 @@ def delete():
 
 def prediction_multi():
     image2 = image.copy()
+    tStart = time.time()
     prediction = predict_multi_image(image2)
+    tEnd = time.time()
     i, j = prediction[0][0], prediction[0][1]
     i = int(i)
     j = int(j)
     pred = i if j == 10 else i*10+j
-    l = Tkinter.Label(root, text='predict result:\n'+str(pred),
-                      font=('Arial', 13), width=15, height=5)
+    pred = 'B'+str(j) if i == 0 else pred
+    l = Tkinter.Label(root, text='predict result:\n'+str(pred)+'\nTime:'+'%.3f' %
+                      (tEnd-tStart), font=('Arial', 13), width=15, height=5)
     l.place(x=10, y=-20)
 
 
@@ -84,7 +106,6 @@ def _get_eucledian_distance(vect1, vect2):
 
 class SampleListener(Leap.Listener):
     finger_names = ['Thumb', 'Index', 'Middle', 'Ring', 'Pinky']
-    threshold = 0.1
 
     def on_init(self, controller):
         print "Initialized"
@@ -113,38 +134,41 @@ class SampleListener(Leap.Listener):
                     #                              2) + math.pow(hand.rotation_angle(lastFrame, Leap.Vector.y_axis), 2))
                     palm_speed = math.sqrt(
                         math.pow(hand.palm_velocity[0], 2) + math.pow(hand.palm_velocity[1], 2))
-                    if palm_speed > 50:
-                        print('.... Recording .... \n')
-                        print('Hand Palm Velocity', palm_speed)
 
-                        # Get fingers
-                        fingerset = []
-                        for finger in hand.fingers:
-                            fingerset.append(finger)
+                    # Get fingers
+                    fingerset = []
+                    for finger in hand.fingers:
+                        fingerset.append(finger)
 
-                        thumb = fingerset[0]
-                        index_finger = fingerset[1]
-                        touch_distance = _get_eucledian_distance(
-                            thumb.bone(3).prev_joint, index_finger.bone(3).prev_joint)
+                    thumb = fingerset[0]
+                    index_finger = fingerset[1]
+                    touch_distance = _get_eucledian_distance(
+                        thumb.bone(3).prev_joint, index_finger.bone(3).prev_joint)
 
-                        if(touch_distance < ((thumb.width+index_finger.width)/2+30)):
-                            # X=index_finger.bone(3).prev_joint[0]
-                            # Y=index_finger.bone(3).prev_joint[1]
-                            hand_x = hand.palm_position[0]
-                            hand_y = hand.palm_position[1]
-                            print("Coordinates:", hand_x, hand_y)
-                            try:
-                                thread.start_new_thread(
-                                    draw_canvas, (hand_x+150, 350-hand_y))
-                            except:
-                                continue
-                    else:
+                    if (touch_distance < ((thumb.width + index_finger.width) / 2 + 30)) and palm_speed > 50:
+
+                        #print('.... Recording .... \n')
+                        # X=index_finger.bone(3).prev_joint[0]
+                        # Y=index_finger.bone(3).prev_joint[1]
+                        hand_x = hand.palm_position[0]
+                        hand_y = hand.palm_position[1]
+
+                        # logger.info(
+                        #   'Hand X :{} Hand Y:{}'.format(hand_x, hand_y))
+                        try:
+                            thread.start_new_thread(
+                                draw_canvas, (hand_x + 150, 350 - hand_y))
+                            self.record = TRUE
+                        except:
+                            continue
+
+                    elif (touch_distance > ((thumb.width + index_finger.width) / 2 + 30)) and palm_speed < 30:
                         print('.... Recording Stopped ....\n')
-        else:
-            print('.... No Hand detecting ....\n')
+                else:
+                    print('.... No Right Hand detected ....\n')
 
         if not (frame.hands.is_empty and frame.gestures().is_empty):
-            print ""
+            print "No hand detected"
 
 
 def main():
