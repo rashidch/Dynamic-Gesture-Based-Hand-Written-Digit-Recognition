@@ -19,8 +19,10 @@ standard_pos=[0,0]
 Filename=0
 root = Tk()
 root.geometry('400x400')
-cv = Canvas(root,bg = 'white',width=400,height=300)
+cv = Canvas(root,bg = 'white',width=400,height=400)
+l3 = Tkinter.Button(cv,bd=2, bg='#A6FFA6',text='Predict', font=('Arial', 13), width=21, height=5)
 image = PIL.Image.new("RGB",(400,300),(255,255,255))
+mouse_point=Canvas(root,bg = '#D0D0D0',width=10,height=10)
 draw=PIL.ImageDraw.Draw(image)
 sys.path.insert(0, "../lib")
 sys.path.insert(1, "../lib/x86")
@@ -29,19 +31,18 @@ from Leap import CircleGesture, KeyTapGesture, ScreenTapGesture, SwipeGesture
 import math
 def draw_canvas(x,y):
     print str(x)+' powition '+str(y)
-    cv.create_oval(x,y,x,y,width=10)
-    draw.ellipse((x, y, x+10, y+10), fill=(0, 0, 0), width=10)
-    cv.pack()
+    if y>=105:
+	    cv.create_oval(x,y,x,y,width=10)
+    draw.ellipse((x, y-100, x+10, y-90), fill=(0, 0, 0), width=10)
 def open_canvas():
-    B = Tkinter.Button(root, text ="Save Me", command = save)
-    B.pack()
-    B2 = Tkinter.Button(root, text ="Clear", command =delete)
-    B2.pack()
-    B3 = Tkinter.Button(root, text ="Predict", command=prediction_multi)
-    l = Tkinter.Label(root, text='predict result:\n', font=('Arial', 13), width=15, height=5)
-    l.place(x=10,y=-20)
-    B3.pack()
     cv.pack()
+    l1 = Tkinter.Button(cv,bd=2, bg='#ACD6FF',text='Save me', font=('Arial', 13), width=10, height=5,command = save)
+    l1.place(x=0,y=0)
+    l2 = Tkinter.Button(cv,bd=2, bg='#FF7575',text='Clear', font=('Arial', 13), width=10, height=5,command =delete)
+    l2.place(x=100,y=0)
+    l3.place(x=200,y=0)
+    l3.configure(command =prediction_multi)
+    mouse_point.place(x=20,y=200)
     root.mainloop()
 def delete():
     cv.delete("all")
@@ -69,16 +70,22 @@ def prediction_multi():
     j=int(j)
     pred=i if j==10 else i*10+j
     pred='B'+str(j) if i==0 else pred
-    l = Tkinter.Label(root, text='predict result:\n'+str(pred)+'\nTime:'+'%.3f'%(tEnd-tStart), font=('Arial', 13), width=15, height=5)
-    l.place(x=10,y=-20)
+    l3.configure(text='predict result:\n'+str(pred)+'\nTime:'+'%.3f'%(tEnd-tStart))
 def save():
     print "77\n\n\n77\n7777\n77777\n7777"
     global Filename
-    filename = "./data/6/"+str(Filename)+'.jpg'
+    filename = "./data/test/"+str(Filename)+'.jpg'
     image.save(filename)
-    image.show()
+    #image.show()
     Filename+=1
-
+def ClickEvent(x,y):
+    if (y<=100 and y>=0):
+        if (x>=0 and x<=100):
+		    save()
+        elif (x>=100 and x<=200):
+            delete()
+        elif (x>=200 and x<=300):
+            prediction_multi()
 
 def _get_eucledian_distance(vect1, vect2):
     Distance=0
@@ -104,6 +111,7 @@ class SampleListener(Leap.Listener):
     aveAmplitude = 10
     threshold = 0.1
     def on_init(self, controller):
+        self.onclick=0
         print "Initialized"
 
     def on_connect(self, controller):
@@ -151,15 +159,16 @@ class SampleListener(Leap.Listener):
                         touch_distance=_get_eucledian_distance(thumb.bone(3).prev_joint,index_finger.bone(3).prev_joint)
                         #print 'Touch distance between Thumb and Index:',touch_distance
                         ##################################
-                        
+                        hand_x=hand.palm_position[0]
+                        hand_y=hand.palm_position[1]
+                        #hand_z=hand.palm_position[2]
+                        mouse_point.place(x=(150+hand_x),y=(450-hand_y))
                         if(touch_distance<((thumb.width+index_finger.width)/2+25)):
+                            self.onclick=1
                             #X=index_finger.bone(3).prev_joint[0]
                             #Y=index_finger.bone(3).prev_joint[1]
-                            hand_x=hand.palm_position[0]
-                            hand_y=hand.palm_position[1]
-                            #hand_z=hand.palm_position[2]
                             #draw_canvas(hand_x+150,200+hand_z)
-                            draw_canvas(hand_x+150,350-hand_y)
+                            draw_canvas(hand_x+150,450-hand_y)
                             #print "draw start"
                             #print "    %s finger, id: %d, length: %fmm, width: %fmm" % (
                             #self.finger_names[fingerset[1].type],
@@ -174,6 +183,12 @@ class SampleListener(Leap.Listener):
                             #bone.prev_joint,
                             #bone.next_joint,
                             #bone.direction)
+                        else:
+                            if self.onclick==1:
+							    ClickEvent(150+hand_x,450-hand_y)
+                                #click event
+							    self.onclick=0
+                            
             else:
                 #print '################Gesture Recording Stopped######################'
                 print''    
