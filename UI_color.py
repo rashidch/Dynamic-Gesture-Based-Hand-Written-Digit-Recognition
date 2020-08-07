@@ -1,39 +1,37 @@
+
 '''
 Author Sherman and Rashid Ali
 '''
 
-
 import thread
 import Leap
+from Leap import CircleGesture, KeyTapGesture, ScreenTapGesture, SwipeGesture
 import sys
 import time
 import math
 import Tkinter
 import tkMessageBox
 import PIL.ImageDraw
-import time
 from Tkinter import *
-#from predict import process_image, predict_single_image
-from predict_multi_digit_shu import predict_multi_image
+from PIL import ImageTk
+images = []
 standard_pos = [0, 0]
-Filename = 0
+Filename = 11
 root = Tk()
 root.geometry('400x400')
 cv = Canvas(root, bg='white', width=400, height=400)
-l3 = Tkinter.Button(cv, bd=2, bg='#A6FFA6', text='Predict',
-                    font=('Arial', 13), width=21, height=5)
-image = PIL.Image.new("RGB", (400, 300), (255, 255, 255))
 mouse_point = Canvas(root, bg='#D0D0D0', width=10, height=10)
+image = PIL.Image.new("RGB", (400, 300), (255, 255, 255))
 draw = PIL.ImageDraw.Draw(image)
 sys.path.insert(0, "../lib")
 sys.path.insert(1, "../lib/x86")
 
 
-def draw_canvas(x, y):
+def draw_canvas(x, y, Drawcolor):
     print str(x)+' powition '+str(y)
     if y >= 105:
-        cv.create_oval(x, y, x, y, width=10)
-    draw.ellipse((x, y-100, x+10, y-90), fill=(0, 0, 0), width=10)
+        cv.create_oval(x, y, x, y, width=10, fill=Drawcolor, outline=Drawcolor)
+    draw.ellipse((x, y-100, x+10, y-90), fill=Drawcolor, width=10)
 
 
 def open_canvas():
@@ -44,54 +42,30 @@ def open_canvas():
     l2 = Tkinter.Button(cv, bd=2, bg='#FF7575', text='Clear', font=(
         'Arial', 13), width=10, height=5, command=delete)
     l2.place(x=100, y=0)
+    l3 = Tkinter.Button(cv, bd=2, bg='#A6FFA6', text='Predict',
+                        font=('Arial', 13), width=10, height=5)
     l3.place(x=200, y=0)
-    l3.configure(command=prediction_multi)
+    # l3.configure(bg='#00A000')
+    #B = Tkinter.Button(root, text ="Save me", command = save)
+    # B.place(x=100,y=100)
     mouse_point.place(x=20, y=200)
     root.mainloop()
 
 
 def delete():
+    Drawcolor = 'red'
     cv.delete("all")
-    draw.rectangle((-100, -100, 600, 600), fill=(255, 255, 255))
-
-
-def prediction():
-    image2 = image.copy()
-    image2 = process_image(image=image2)
-    #image2 = thread.start_new_thread(process_image,image2)
-    prediction = predict_single_image(image2)
-    print("Prediction:", prediction)
-    #image3 = image.copy()
-    # draw2=PIL.ImageDraw.Draw(image3)
-    l = Tkinter.Label(root, text='predict result:\n' +
-                      str(prediction), font=('Arial', 13), width=15, height=5)
-    l.place(x=10, y=-20)
-    #tkMessageBox.showinfo(title='predict result', message=str(prediction))
-    #draw.text((100, 100),str(prediction), align ="right")
-    # image.show()
-
-
-def prediction_multi():
-    image2 = image.copy()
-    tStart = time.time()
-    prediction = predict_multi_image(image2)
-    tEnd = time.time()
-    i, j = prediction[0][0], prediction[0][1]
-    i = int(i)
-    j = int(j)
-    pred = i if j == 10 else i*10+j
-    pred = 'B'+str(j) if i == 0 else pred
-    l3.configure(text='predict result:\n'+str(pred) +
-                 '\nTime:'+'%.3f' % (tEnd-tStart))
+    draw.rectangle((0, 0, 600, 600), fill=(255, 255, 255))
 
 
 def save():
     print "77\n\n\n77\n7777\n77777\n7777"
     global Filename
-    filename = "./overlap_dataset/test/"+str(Filename)+'.jpg'
+    filename = "./data/overlap2/"+str(Filename)+'.jpg'
     image.save(filename)
     # image.show()
     Filename += 1
+    delete()
 
 
 def ClickEvent(x, y):
@@ -101,7 +75,7 @@ def ClickEvent(x, y):
         elif (x >= 100 and x <= 200):
             delete()
         elif (x >= 200 and x <= 300):
-            prediction_multi()
+            l3.configure(bg='#00A000')
 
 
 def _get_eucledian_distance(vect1, vect2):
@@ -112,8 +86,26 @@ def _get_eucledian_distance(vect1, vect2):
     return dist
 
 
+def compute_amplitude(finger, finger_prev):
+    amplitude = 0
+    for i in range(2):
+        amplitude += math.pow((finger[1].tip_position[i] -
+                               finger_prev[1].tip_position[i]), 2)
+    amplitude = math.sqrt(amplitude)
+
+    return amplitude
+
+
 class SampleListener(Leap.Listener):
+    finger_names = ['Thumb', 'Index', 'Middle', 'Ring', 'Pinky']
+    bone_names = ['Metacarpal', 'Proximal', 'Intermediate', 'Distal']
+    state_names = ['STATE_INVALID', 'STATE_START', 'STATE_UPDATE', 'STATE_END']
+    width_of_window = 10
+    aveAmplitude = 10
+    threshold = 0.7
+
     def on_init(self, controller):
+        self.Drawcolor = 'red'
         self.onclick = 0
         print "Initialized"
 
@@ -132,15 +124,20 @@ class SampleListener(Leap.Listener):
         frame = controller.frame()
         previous = controller.frame(1)
 
+        print "Frame_latest id: %d, Frame_prev id: %d, hands: %d, fingers: %d " % (
+            frame.id, previous.id, len(frame.hands), len(previous.fingers))
+
         if len(frame.hands) > 0:
             # Get hands
             for hand in frame.hands:
                 if hand.is_right:
+
                     # Get fingers
                     fingerset = []
                     for finger in hand.fingers:
                         fingerset.append(finger)
 
+                    print(self.Drawcolor)
                     thumb = fingerset[0]
                     index_finger = fingerset[1]
                     touch_distance = _get_eucledian_distance(
@@ -149,20 +146,21 @@ class SampleListener(Leap.Listener):
                     hand_x = hand.palm_position[0]
                     hand_y = hand.palm_position[1]
                     mouse_point.place(x=(150+hand_x), y=(450-hand_y))
-                    if(touch_distance < ((thumb.width+index_finger.width)/2+15)):
+                    if(touch_distance < ((thumb.width+index_finger.width)/2+30)):
                         self.onclick = 1
                         # X=index_finger.bone(3).prev_joint[0]
                         # Y=index_finger.bone(3).prev_joint[1]
-                        draw_canvas(hand_x+150, 450-hand_y)
+
+                        draw_canvas(150+hand_x, 450-hand_y, self.Drawcolor)
 
                     else:
                         if self.onclick == 1:
+                            self.Drawcolor = 'blue' if self.Drawcolor == 'red' else 'red'
                             ClickEvent(150+hand_x, 450-hand_y)
-# click event
+    # click event
                             self.onclick = 0
-
         else:
-            print''
+            print ''
 
         if not (frame.hands.is_empty and frame.gestures().is_empty):
             print ""

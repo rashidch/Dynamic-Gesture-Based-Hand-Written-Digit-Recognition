@@ -47,7 +47,7 @@ sys.path.insert(1, "../lib/x86")
 
 
 def draw_canvas(x, y):
-    print str(x)+' position'+str(y)
+    print str(x) + ' position' + str(y)
     cv.create_oval(x, y, x, y, width=10)
     draw.ellipse((x, y, x+10, y+10), fill=(0, 0, 0), width=10)
     cv.pack()
@@ -90,7 +90,7 @@ def prediction_multi():
 def save():
     print "77\n\n\n77\n7777\n77777\n7777"
     global Filename
-    filename = "./data/6/"+str(Filename)+'.jpg'
+    filename = "./zipdata_new/test/"+str(Filename)+'.jpg'
     image.save(filename)
     image.show()
     Filename += 1
@@ -106,6 +106,8 @@ def _get_eucledian_distance(vect1, vect2):
 
 class SampleListener(Leap.Listener):
     finger_names = ['Thumb', 'Index', 'Middle', 'Ring', 'Pinky']
+    trajectory = list()
+    tracker = list()
 
     def on_init(self, controller):
         print "Initialized"
@@ -145,7 +147,7 @@ class SampleListener(Leap.Listener):
                     touch_distance = _get_eucledian_distance(
                         thumb.bone(3).prev_joint, index_finger.bone(3).prev_joint)
 
-                    if (touch_distance < ((thumb.width + index_finger.width) / 2 + 30)) and palm_speed > 50:
+                    if (touch_distance < ((thumb.width + index_finger.width) / 2 + 10)) and palm_speed > 50:
 
                         #print('.... Recording .... \n')
                         # X=index_finger.bone(3).prev_joint[0]
@@ -162,7 +164,7 @@ class SampleListener(Leap.Listener):
                         except:
                             continue
 
-                    elif (touch_distance > ((thumb.width + index_finger.width) / 2 + 30)) and palm_speed < 30:
+                    elif (touch_distance > ((thumb.width + index_finger.width) / 2 + 10)) and palm_speed < 30:
                         print('.... Recording Stopped ....\n')
                 else:
                     print('.... No Right Hand detected ....\n')
