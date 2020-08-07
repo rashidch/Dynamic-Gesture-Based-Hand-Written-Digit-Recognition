@@ -15,7 +15,7 @@ from Tkinter import *
 from PIL import ImageTk
 images = []
 standard_pos=[0,0]
-Filename=11
+Filename=0
 root = Tk()
 root.geometry('400x400')
 cv = Canvas(root,bg = 'white',width=400,height=400)
@@ -46,13 +46,12 @@ def open_canvas():
     mouse_point.place(x=20,y=200)
     root.mainloop()
 def delete():
-    Drawcolor='red'
     cv.delete("all")
     draw.rectangle((0, 0, 600, 600), fill=(255, 255, 255))
 def save():
     print "77\n\n\n77\n7777\n77777\n7777"
     global Filename
-    filename = "./data/overlap2/"+str(Filename)+'.jpg'
+    filename = "./data/overlap3/4/"+str(Filename)+'.jpg'
     image.save(filename)
     #image.show()
     Filename+=1
@@ -60,7 +59,7 @@ def save():
 def ClickEvent(x,y):
     if (y<=100 and y>=0):
         if (x>=0 and x<=100):
-		    save()
+            save()
         elif (x>=100 and x<=200):
             delete()
         elif (x>=200 and x<=300):
@@ -162,10 +161,12 @@ class SampleListener(Leap.Listener):
                             #bone.direction)
                         else:
                             if self.onclick==1:
-							    self.Drawcolor='green' if self.Drawcolor=='red' else 'red'
-							    ClickEvent(150+hand_x,450-hand_y)
+                                self.Drawcolor='blue' if self.Drawcolor=='red' else 'red'
+                                if ((450-hand_y)<=100 and (450-hand_y)>=0):
+                                    self.Drawcolor='red'
+                                ClickEvent(150+hand_x,450-hand_y)
                                 #click event
-							    self.onclick=0
+                                self.onclick=0
             else:
                 print '################Gesture Recording Stopped######################'    
         else:
