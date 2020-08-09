@@ -13,7 +13,7 @@ import tkMessageBox
 import PIL.ImageDraw
 import time
 from Tkinter import *
-from predict import process_image, predict_single_image
+#from predict import process_image, predict_single_image
 from predict_multi_digit_shu import predict_multi_image
 standard_pos=[0,0]
 Filename=0
@@ -45,7 +45,7 @@ def open_canvas():
     mouse_point.place(x=20,y=200)
     root.mainloop()
 def delete():
-    cv.delete("all")
+    cv.create_rectangle(0,0,500,500,fill='white')
     draw.rectangle((-100,-100, 600, 600), fill=(255, 255, 255))
 def prediction():
     image2 = image.copy()
