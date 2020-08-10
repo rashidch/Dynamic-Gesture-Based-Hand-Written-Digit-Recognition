@@ -14,7 +14,7 @@ import PIL.ImageDraw
 import time
 from Tkinter import *
 #from predict import process_image, predict_single_image
-from predict_multi_digit_shu import predict_multi_image
+from predict_multi_digit import predict_multi_image
 standard_pos = [0, 0]
 Filename = 0
 root = Tk()
