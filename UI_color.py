@@ -89,10 +89,7 @@ def check_overlap(test):
     test = cv2.cvtColor(test, cv2.COLOR_RGB2GRAY)
     test = cv2.resize(test, dsize=(64, 64), interpolation=cv2.INTER_AREA)
     test = test.reshape(1, 64, 64, 1)
-    print('Shape of Image', test.shape)
     predict = evaluateModel(test)
-    print('Multidigit Overlaped? {}'.format(predict[0]))
-
     return predict[0]
 
 
@@ -197,14 +194,13 @@ def predict_multi_image(image, label=None):
     except:
         print("Failed to restore checkpoint - initializing variables")
 
-    #image = cv2.cvtColor(np.float32(image), cv2.COLOR_RGB2GRAY)
     image = cv2.resize(np.float32(image), dsize=(
         64, 64), interpolation=cv2.INTER_AREA)
     image = subtract_mean(image)
     image = np.expand_dims(
         np.dot(image, [0.2989, 0.5870, 0.1140]), axis=3).astype(np.float32)
-    #print('shape in predict ', image.shape)
     img = np.expand_dims(image, axis=0)
+    print('Shape of Final Image',  img.shape)
     pred = session.run(y_pred_cls, feed_dict={
                        x: img, p_keep_1: 1., p_keep_2: 1., p_keep_3: 1.})
 

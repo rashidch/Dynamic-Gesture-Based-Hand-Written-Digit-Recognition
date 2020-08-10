@@ -51,8 +51,16 @@ def open_canvas():
 
 
 def delete():
-    cv.delete("all")
-    draw.rectangle((-100, -100, 600, 600), fill=(255, 255, 255))
+
+
+cv.delete("all")
+draw.rectangle((-100, -100, 600, 600), fill=(255, 255, 255))
+
+
+== == == =
+cv.create_rectangle(0, 0, 500, 500, fill='white')
+draw.rectangle((-100, -100, 600, 600), fill=(255, 255, 255))
+>>>>>> > 0df46faaf04c50c4a1dfec3f9b436cd7bca08f3e
 
 
 def prediction():
