@@ -18,7 +18,7 @@ print("Tensorflow version: " + tf.__version__)
 def load_data():
     # Open the HDF5 file containing the datasets
     h5f = h5py.File(
-        'C:/Users/rashi/Desktop/Elevator/multi-digit-leap-motion/data/mlt_leap_grey_0.h5', 'r')
+        './mlt_leap_grey_0.h5', 'r')
     # Extract the datasets
     X_train = h5f['train_dataset'][:]
     y_train = h5f['train_labels'][:]
@@ -312,7 +312,7 @@ session = tf.Session()
 # load checkpoints for multi-digit model
 saver = tf.train.Saver()
 save_path = os.path.join(
-    'C:/Users/rashi/Desktop/Elevator/multi-digit-leap-motion/checkpoints', 'mlt_leap_v3-6000')
+    './checkpoints', 'mlt_leap_v4-6000')
 try:
     print("Restoring checkpoint ...")
     # Try and load the data in the checkpoint.
