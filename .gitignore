@@ -1,16 +1,16 @@
 # ignore data files
 zipdata.rar
 zipdata1.rar
-zipdata
-zipdata1
-zipdata3
-zipdata4
-zipdata_new
-code-files
-code
-freeze-graph
-multi-digit-leap-motion
-dataset
+zipdata/
+zipdata1/
+zipdata3/
+zipdata4/
+zipdata_new/
+code-files/
+code/
+freeze-graph/
+multi-digit-leap-motion/
+dataset/
 # C extensions
 *.so
 #data files in numpy format
